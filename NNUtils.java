@@ -11,7 +11,7 @@ public class NNUtils {
     public static double[][] sigmoidPrime(double[][] A) {
         double[][] aux = Matrix.fill(A.length, A[0].length, 1);
         double[][] sub = Matrix.sub(aux, sigmoid(A));
-        return Matrix.dot(sigmoid(A), sub);
+        return Matrix.hadamard(sigmoid(A), sub);
     }
 
     public static double mse(double[][][] labels, double[][][] outputs) {

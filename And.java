@@ -20,7 +20,7 @@ public class And {
 
         double[][][] outputs = new double[data_size][1][1];
         double[][][] binary_out = new double[data_size][1][1];
-        double[][] d_weights, d_bias, logit, error, term_error;
+        double[][] d_weights, d_bias, logit, error, delta;
         double loss, acc;
 
         // training
@@ -33,9 +33,9 @@ public class And {
                 outputs[data] = NNUtils.sigmoid(logit);
                 // backpropagation
                 error = Matrix.sub(labels[data], outputs[data]);
-                term_error = Matrix.dot(error, NNUtils.sigmoidPrime(logit));
-                d_weights = Matrix.add(Matrix.dot(Matrix.transpose(input[data]), term_error), d_weights);
-                d_bias = Matrix.add(term_error, d_bias);
+                delta = Matrix.hadamard(error, NNUtils.sigmoidPrime(logit));
+                d_weights = Matrix.add(Matrix.dot(Matrix.transpose(input[data]), delta), d_weights);
+                d_bias = Matrix.add(delta, d_bias);
             }
             d_weights = Matrix.addScalar(lr / data_size, d_weights);
             d_bias = Matrix.addScalar(lr / data_size, d_bias);
@@ -51,11 +51,11 @@ public class And {
         for(int data=0; data<data_size; data++) {
             outputs[data] = NNUtils.sigmoid(Matrix.add(Matrix.dot(input[data], weights), bias));
             binary_out[data] = Matrix.fill(1, 1, NNUtils.threshold(outputs[data][0][0]));
-            Matrix.showMatrix(outputs[data]);
+            Matrix.show(outputs[data]);
         }
         System.out.println();
         for(int data=0; data<data_size; data++)
-            Matrix.showMatrix(binary_out[data]);
+            Matrix.show(binary_out[data]);
 
     }
 
