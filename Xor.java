@@ -2,32 +2,44 @@ import java.util.Random;
 
 public class Xor {
 
+    public static double[][] forward(double[][] inputs, double[][][] weights, double[][][] biases) {
+        double[][][] logit = new double[3][1][1];
+        // hidden
+        logit[0] = Matrix.add(Matrix.dot(inputs, weights[0]), biases[0]);
+        logit[1] = Matrix.add(Matrix.dot(inputs, weights[1]), biases[1]);
+        double[][] h_outputs = {
+            { NNUtils.sigmoid(logit[0])[0][0], NNUtils.sigmoid(logit[1])[0][0] },
+        };
+        // output
+        logit[2] = Matrix.add(Matrix.dot(h_outputs, weights[2]), biases[2]);
+        return NNUtils.sigmoid(logit[2]);
+    }
+
     public static void main(String args[]) {
 
+        // hyperparameters
+        double lr = 10;
+        int num_epochs = 891;
         Random rand = new Random(17);
-        double[][][] input = {{{0, 0}}, {{0, 1}}, {{1, 0}}, {{1, 1}}}; // 1x2
+
+        double[][][] inputs = {{{0, 0}}, {{0, 1}}, {{1, 0}}, {{1, 1}}}; // 1x2
         double[][][] labels = {{{0}}, {{1}}, {{1}}, {{0}}};
         double[][][] weights = {
             {{rand.nextDouble(1) - 0.5}, {rand.nextDouble(1) - 0.5}},
             {{rand.nextDouble(1) - 0.5}, {rand.nextDouble(1) - 0.5}},
             {{rand.nextDouble(1) - 0.5}, {rand.nextDouble(1) - 0.5}},
         }; // 2x1
-        double[][][] bias = {
+        double[][][] biases = {
             {{rand.nextDouble(1) - 0.5}},
             {{rand.nextDouble(1) - 0.5}},
             {{rand.nextDouble(1) - 0.5}},
         };
         int data_size = labels.length;
-
-        // hyperparameters
-        double lr = 10;
-        int num_epochs = 1000;
-
         double[][][] outputs = new double[data_size][1][1];
         double[][][] binary_out = new double[data_size][1][1];
         double[][] error, delta, h_output_prime, hadamard, h_deltas, h_delta_1, h_delta_2;
         double[][][] d_weights = new double[3][1][1];
-        double[][][] d_bias = new double[3][1][1];
+        double[][][] d_biases = new double[3][1][1];
         double[][][] logit = new double[3][1][1];
         double loss, acc;
         double[][] h_outputs = new double[1][2];
@@ -37,19 +49,19 @@ public class Xor {
             d_weights = new double[][][]{
                 Matrix.fill(2, 1, 0), Matrix.fill(2, 1, 0), Matrix.fill(2, 1, 0)
             };
-            d_bias = new double[][][]{
+            d_biases = new double[][][]{
                 Matrix.fill(1, 1, 0), Matrix.fill(1, 1, 0), Matrix.fill(1, 1, 0)
             };
             for(int data=0; data<data_size; data++) {
                 // forward pass
                 // hidden
-                logit[0] = Matrix.add(Matrix.dot(input[data], weights[0]), bias[0]);
-                logit[1] = Matrix.add(Matrix.dot(input[data], weights[1]), bias[1]);
+                logit[0] = Matrix.add(Matrix.dot(inputs[data], weights[0]), biases[0]);
+                logit[1] = Matrix.add(Matrix.dot(inputs[data], weights[1]), biases[1]);
                 h_outputs = new double[][]{
                     { NNUtils.sigmoid(logit[0])[0][0], NNUtils.sigmoid(logit[1])[0][0] },
                 };
                 // output
-                logit[2] = Matrix.add(Matrix.dot(h_outputs, weights[2]), bias[2]);
+                logit[2] = Matrix.add(Matrix.dot(h_outputs, weights[2]), biases[2]);
                 outputs[data] = NNUtils.sigmoid(logit[2]);
 
                 // backpropagation
@@ -58,7 +70,7 @@ public class Xor {
                 delta = Matrix.hadamard(error, NNUtils.sigmoidPrime(logit[2]));
 
                 d_weights[2] = Matrix.add(Matrix.dot(Matrix.transpose(h_outputs), delta), d_weights[2]);
-                d_bias[2] = Matrix.add(delta, d_bias[2]);
+                d_biases[2] = Matrix.add(delta, d_biases[2]);
 
                 // hidden
                 h_output_prime = NNUtils.sigmoidPrime(h_outputs);
@@ -67,35 +79,30 @@ public class Xor {
                 h_delta_1 = new double[][]{{ h_deltas[0][1] }};
                 h_delta_2 = new double[][]{{ h_deltas[0][0] }};
 
-                d_weights[1] = Matrix.add(Matrix.dot(Matrix.transpose(input[data]), h_delta_1), d_weights[1]);
-                d_bias[1] = Matrix.add(h_delta_1, d_bias[1]);
-                d_weights[0] = Matrix.add(Matrix.dot(Matrix.transpose(input[data]), h_delta_2), d_weights[0]);
-                d_bias[0] = Matrix.add(h_delta_2, d_bias[0]);
+                d_weights[1] = Matrix.add(Matrix.dot(Matrix.transpose(inputs[data]), h_delta_1), d_weights[1]);
+                d_biases[1] = Matrix.add(h_delta_1, d_biases[1]);
+                d_weights[0] = Matrix.add(Matrix.dot(Matrix.transpose(inputs[data]), h_delta_2), d_weights[0]);
+                d_biases[0] = Matrix.add(h_delta_2, d_biases[0]);
             }
             for(int i=0; i<3; i++) {
                 d_weights[i] = Matrix.addScalar(lr / data_size, d_weights[i]);
-                d_bias[i] = Matrix.addScalar(lr / data_size, d_bias[i]);
+                d_biases[i] = Matrix.addScalar(lr / data_size, d_biases[i]);
                 weights[i] = Matrix.add(weights[i], d_weights[i]);
-                bias[i] = Matrix.add(bias[i], d_bias[i]);
+                biases[i] = Matrix.add(biases[i], d_biases[i]);
             }
 
             // testing
-            loss = NNUtils.mse(labels, outputs);
-            acc = NNUtils.accuracy(labels, outputs);
-            System.out.println("epoch: " + (epoch+1) + "/" + num_epochs + " loss: " + loss + " acc: " + acc);
+            if(epoch % 10 == 0) {
+                for(int data=0; data<data_size; data++)
+                    outputs[data] = forward(inputs[data], weights, biases);
+                loss = NNUtils.mse(labels, outputs);
+                acc = NNUtils.accuracy(labels, outputs);
+                System.out.println("epoch: " + (epoch+1) + "/" + num_epochs + " loss: " + loss + " acc: " + acc);
+            }
         }
         System.out.println();
         for(int data=0; data<data_size; data++) {
-            // forward pass
-            // hidden
-            logit[0] = Matrix.add(Matrix.dot(input[data], weights[0]), bias[0]);
-            logit[1] = Matrix.add(Matrix.dot(input[data], weights[1]), bias[1]);
-            h_outputs = new double[][]{
-                { NNUtils.sigmoid(logit[0])[0][0], NNUtils.sigmoid(logit[1])[0][0] },
-            };
-            // output
-            logit[2] = Matrix.add(Matrix.dot(h_outputs, weights[2]), bias[2]);
-            outputs[data] = NNUtils.sigmoid(logit[2]);
+            outputs[data] = forward(inputs[data], weights, biases);
             binary_out[data] = Matrix.fill(1, 1, NNUtils.threshold(outputs[data][0][0]));
             Matrix.show(outputs[data]);
         }
