@@ -1,6 +1,6 @@
 import java.util.Random;
 
-public class Xor {
+public class XNOR {
 
     public static double[][] forward(double[][] inputs, double[][][] weights, double[][][] biases) {
         double[][][] logit = new double[3][1][1];
@@ -19,11 +19,11 @@ public class Xor {
 
         // hyperparameters
         double lr = 10;
-        int num_epochs = 891;
-        Random rand = new Random(17);
+        int num_epochs = 711;
+        Random rand = new Random(85);
 
         double[][][] inputs = {{{0, 0}}, {{0, 1}}, {{1, 0}}, {{1, 1}}}; // 1x2
-        double[][][] labels = {{{0}}, {{1}}, {{1}}, {{0}}};
+        double[][][] labels = {{{1}}, {{0}}, {{0}}, {{1}}};
         double[][][] weights = {
             {{rand.nextDouble(1) - 0.5}, {rand.nextDouble(1) - 0.5}},
             {{rand.nextDouble(1) - 0.5}, {rand.nextDouble(1) - 0.5}},

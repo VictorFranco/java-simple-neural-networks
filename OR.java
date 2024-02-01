@@ -1,6 +1,6 @@
 import java.util.Random;
 
-public class Or {
+public class OR {
 
     public static double[][] forward(double[][] inputs, double[][] weights, double[][] bias) {
         return NNUtils.sigmoid(Matrix.add(Matrix.dot(inputs, weights), bias));
