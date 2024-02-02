@@ -1,3 +1,7 @@
+/**
+ *
+ * @author Franco Hernández Victor Alfonso
+ */
 public class NNUtils {
 
     public static double[][] sigmoid(double[][] A) {

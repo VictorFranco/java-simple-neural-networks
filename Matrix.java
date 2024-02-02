@@ -1,3 +1,7 @@
+/**
+ *
+ * @author Franco Hernández Victor Alfonso
+ */
 public class Matrix {
 
     public static void show(double[][] A) {

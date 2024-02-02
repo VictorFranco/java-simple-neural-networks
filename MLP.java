@@ -1,5 +1,9 @@
 import java.util.Random;
 
+/**
+ *
+ * @author Franco Hernández Victor Alfonso
+ */
 public class MLP implements NeuralNetwork {
 
     int data_size;

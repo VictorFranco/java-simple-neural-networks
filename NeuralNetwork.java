@@ -1,3 +1,7 @@
+/**
+ *
+ * @author Franco Hernández Victor Alfonso
+ */
 interface NeuralNetwork {
 
     public double[][] forward(double[][] inputs);

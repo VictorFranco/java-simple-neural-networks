@@ -1,3 +1,7 @@
+/**
+ *
+ * @author Franco Hernández Victor Alfonso
+ */
 public class OR {
 
     public static void main(String args[]) {
