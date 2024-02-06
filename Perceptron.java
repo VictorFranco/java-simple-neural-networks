@@ -51,8 +51,8 @@ public class Perceptron implements NeuralNetwork {
                 d_weights = Matrix.add(Matrix.dot(Matrix.transpose(inputs[data]), delta), d_weights);
                 d_bias = Matrix.add(delta, d_bias);
             }
-            d_weights = Matrix.addScalar(lr / data_size, d_weights);
-            d_bias = Matrix.addScalar(lr / data_size, d_bias);
+            d_weights = Matrix.scalarMul(lr / data_size, d_weights);
+            d_bias = Matrix.scalarMul(lr / data_size, d_bias);
             weights = Matrix.add(weights, d_weights);
             bias = Matrix.add(bias, d_bias);
 

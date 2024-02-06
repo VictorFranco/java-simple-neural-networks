@@ -95,8 +95,8 @@ public class MLP implements NeuralNetwork {
                 d_biases[0] = Matrix.add(h_delta_2, d_biases[0]);
             }
             for(int i=0; i<3; i++) {
-                d_weights[i] = Matrix.addScalar(lr / data_size, d_weights[i]);
-                d_biases[i] = Matrix.addScalar(lr / data_size, d_biases[i]);
+                d_weights[i] = Matrix.scalarMul(lr / data_size, d_weights[i]);
+                d_biases[i] = Matrix.scalarMul(lr / data_size, d_biases[i]);
                 weights[i] = Matrix.add(weights[i], d_weights[i]);
                 biases[i] = Matrix.add(biases[i], d_biases[i]);
             }

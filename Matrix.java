@@ -76,7 +76,7 @@ public class Matrix {
         return result;
     }
 
-    public static double[][] addScalar(double scalar, double[][] A) {
+    public static double[][] scalarMul(double scalar, double[][] A) {
         double[][] result = new double[A.length][A[0].length];
         for(int i=0; i<A.length; i++) {
             for(int j=0; j<A[0].length; j++)
